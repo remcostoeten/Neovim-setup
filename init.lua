@@ -1,12 +1,15 @@
 --[[
   ░█▄░█ █▀▀ █▀█ █░█ █ █▀▄▀█
   ░█░▀█ ██▄ █▄█ ▀▄▀ █ █░▀░█
-  
+
   Elegant Neovim Configuration with Vercel-inspired aesthetics
 ]]
 
 -- Bootstrap lazy.nvim, LazyVim, and plugins
 require("config.lazy")
+
+-- Source custom commands
+require('user.commands')
 
 -- ┌─────────────────────────────────────────────────────────────┐
 -- │ Theme Configuration                                         │
@@ -44,6 +47,7 @@ local function setup_vercel_theme()
     status_nc = "#D8DEE9", -- Light text for inactive status line
     status_nc_bg = "#2E3440", -- Darker background for inactive status
     visual_bg = "#3B4252", -- Background for visual selection
+    purple_hint = "#A569BD", -- Hint of purple
   }
 
   -- UI Enhancements
@@ -98,14 +102,19 @@ local function setup_vercel_theme()
     { "DiagnosticError", "guifg=" .. colors.error },
     { "DiagnosticWarn", "guifg=" .. colors.todo },
     { "DiagnosticInfo", "guifg=" .. colors.func },
-    { "DiagnosticHint", "guifg=" .. colors.comment },
+
+    -- Purple hint
+    { "Function", "guifg=" .. colors.purple_hint .. " gui=bold" },
+    { "Special", "guifg=" .. colors.purple_hint },
+    { "Keyword", "guifg=" .. colors.purple_hint .. " gui=bold" },
   }
 
-  -- Apply all highlights
-  for _, highlight in ipairs(highlights) do
-    vim.cmd("highlight " .. highlight[1] .. " " .. highlight[2])
+  for _, highlight in pairs(highlights) do
+    vim.cmd(string.format("highlight %s %s", highlight[1], highlight[2]))
   end
 end
+
+setup_vercel_theme()
 
 -- Apply the Vercel-inspired theme
 setup_vercel_theme()
@@ -119,10 +128,15 @@ local opts = { noremap = true, silent = true }
 -- File operations
 map("n", "<C-x>", 'gg"_dG', opts) -- Clear file (Ctrl+X)
 map("n", "<C-a>", "ggVG", opts) -- Select all (Ctrl+A)
+map("n", "<C-i>", "ggVG<c-v>", opts) -- Select all and go to Insert mode (Ctrl+I)
 
 -- Clipboard integration
 map("v", "<C-c>", '"+y', opts) -- Copy to system clipboard (Ctrl+C in visual mode)
-map("n", "p", '"+p', opts) -- Paste from system clipboard (p in normal mode)
+map("n", "<C-c>", '"+y', opts) -- Copy to system clipboard (Ctrl+C in normal mode)
+map("i", "<C-c>", '<Esc>"+y', opts) -- Copy to system clipboard (Ctrl+C in insert mode)
+map("v", "<C-v>", '"+p', opts) -- Paste from system clipboard (Ctrl+V in visual mode)
+map("n", "<C-v>", '"+p', opts) -- Paste from system clipboard (Ctrl+V in normal mode)
+map("i", "<C-v>", '<Esc>"+p', opts) -- Paste from system clipboard (Ctrl+V in insert mode)
 
 -- Undo/Redo
 map("n", "<C-u>", "<C-r>", opts) -- Redo (Ctrl+U)
